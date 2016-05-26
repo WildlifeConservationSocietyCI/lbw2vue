@@ -19,5 +19,6 @@ Laubwerk plant model importer for VueInfinite
     
 ##Next steps##
 - Find a way to map textures to object
+- Scale models appropriately - see note in import_lbw.py
 - use wxPython to write user interface for this tool plugin
 - Specify plant attributes?

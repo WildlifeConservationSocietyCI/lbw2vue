@@ -92,6 +92,7 @@ def open_coord_file(filename):
 # selects all mesh objects, deselects all other object types
 def select_obj():
     DeselectAll()
+    SelectByType(43) # 43 is an internal vue code for this object type.
 
 
 # moves an object based on given x,y,z positions
