@@ -48,3 +48,4 @@ Temporary Items
 .idea/.name
 *.xml
 .idea/lbw2vue.iml
+/*.pyc

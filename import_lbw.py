@@ -1,5 +1,3 @@
-__author__ = 'mgiampieri'
-
 # 16/05/24
 
 # creates a vue mesh object at an arbitrary location that serves as a dummy.
@@ -51,7 +49,7 @@ def get_species(dir):
 
     chosen_dir = dir+chosen
 
-    return idx, plants, chosen_dir # this is the number of the plant, the total list of all plant variants found in the directory, and the full path to the plant's dir
+    return idx, plants, chosen_dir, chosen# this is the number of the plant, the total list of all plant variants found in the directory, the full path to the plant's dir, and plant's scientific name
 
 
 # create a given number of Vue mesh objects based on provided quantity. They have null geometry but have a position, name, and index position
@@ -92,9 +90,8 @@ def open_coord_file(filename):
 
 
 # selects all mesh objects, deselects all other object types
-def select_mesh():
+def select_obj():
     DeselectAll()
-    SelectByType(6) # 6 is an internal vue code for the mesh object type.
 
 
 # moves an object based on given x,y,z positions
@@ -110,7 +107,7 @@ display_console()
 # create_mesh will create empty mesh objects and name and place them arbitrarily for now.
 #create_mesh(num_trees)
 # returns chosen plant id, list of plants, and the path to the chosen plant's sub-directory
-id, plant_list, plant_path = get_species(plants_dir)
+id, plant_list, plant_path, plant_name = get_species(plants_dir)
 # print plant_list[id] # prints out the chosen plant name
 # print plant_path # prints out the full path to the plant's subdirectory
 
@@ -119,14 +116,23 @@ lbwPlantFilename = os.path.join(plant_path, os.path.basename(plant_path) + ".lbw
 
 # create a temporary obj file in a temp location
 tempObjFile = tempfile.NamedTemporaryFile(suffix=".obj", delete=False)
+
 lbwtoobj.lbwToObj(lbwPlantFilename, tempObjFile)
+
 tempObjFile.close() # we need to close the file so Vue can import it
 
 # use Vue's built in import functionality to get the geometry imported
 vueObj = ImportObject(tempObjFile.name)   
 
+# name plant based on folder name
+vueObj.SetName(plant_name)
+
+# not entirely sure why, but the Laubwerk plants are being imported at ~100x their intended size. This scales them back down appropriately- see note note below
+vueObj.ResizeAxis(0.01, 0.01, 0.01)
 
 # TODO: Now go ahead and set up everything else
+# TODO: Make sure to scale plant appropriately; initial tests show plant as ~100x bigger than they are supposed to be. Instead of scaling the plants, we could change the
+# terrain size, but I'm hesitant to do so without seriously considering the implications for scaling the DEMs, etc.
 
 # make sure to remove the temporary OBJ file so we don't fill up the hard drive
 os.remove(tempObjFile.name)
@@ -150,7 +156,7 @@ if False:
 
     # pick a specific model from the plant file
     lbwMyModel = lbwMyPlant.defaultModel
-      
+
     # generate the actual tree geometry
     lbwMyMesh = lbwMyModel.getMesh(qualifierName="summer", maxBranchLevel=3, minThickness=0.3, leafAmount=1.0, leafDensity=1.0, maxSubDivLevel=1)
 
@@ -191,10 +197,10 @@ if False:
     vueMesh.SetMeshFaceVertexIndices(vertexIndices)
 
 
-    #print vueMesh.CountMeshVertices()
+    print vueMesh.CountMeshVertices()
 
 
-    """
+"""
     vertexList = vueMesh.MeshFaceVertexIndices()
     vertexList.append((0.0, 0.0, 0.0))
     vertexList.append((10.0, 0.0, 0.0))
@@ -204,16 +210,13 @@ if False:
     vertexList.append((0.0, 10.0, 10.0))
     print len(vertexList)
     """
-    """
+"""
     vueMesh.SetMeshVertices([(0.0, 0.0, 0.0), (10.0, 0.0, 0.0), (0.0, 10.0, 0.0), (0.0, 0.0, 10.0), (10.0, 0.0, 10.0), (0.0, 10.0, 10.0)])
     vueMesh.SetMeshFaceVertexIndices([(0, 1, 2), (3, 4, 5)])
     print vueMesh.CountMeshVertices()
     """
 
-    """
+"""
     vueMesh.SetMeshVertices([(0.0, 0.0, 0.0), (10.0, 0.0, 0.0), (0.0, 10.0, 0.0)])
     vueMesh.SetMeshFaceVertexIndices([(0, 1, 2)])
-    """
-
-
-
+"""
