@@ -15,7 +15,7 @@ import laubwerk
 
 # import the lbwtoobj helper script
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-import lbwtoobj
+import lbwtoobj2
 
 
 plants_dir = "C:\\Program Files\\Laubwerk\\Plants\\" # location of root LW plant directory
@@ -117,19 +117,21 @@ lbwPlantFilename = os.path.join(plant_path, os.path.basename(plant_path) + ".lbw
 
 # create a temporary obj file in a temp location
 tempObjFile = tempfile.NamedTemporaryFile(suffix=".obj", delete=False)
+tempMtlFile = tempfile.NamedTemporaryFile(suffix=".mtl", delete=False)
 
-lbwtoobj.lbwToObj(lbwPlantFilename, tempObjFile)
+myPlant = laubwerk.load(lbwPlantFilename)
+lbwtoobj2.writeObjByHandle(myPlant, myPlant.defaultModel, "summer", tempObjFile, 0.01, tempMtlFile)
 
-tempObjFile.close() # we need to close the file so Vue can import it
+# we need to close the files so Vue can import it
+tempObjFile.close()
+tempMtlFile.close()
 
 # use Vue's built in import functionality to get the geometry imported
-vueObj = ImportObject(tempObjFile.name)   
+vueObj = ImportObject(tempObjFile.name, -1, False, -1)  
 
 # name plant based on folder name
 vueObj.SetName(plant_name)
-
-# not entirely sure why, but the Laubwerk plants are being imported at ~100x their intended size. This scales them back down appropriately- see note note below
-vueObj.ResizeAxis(0.01, 0.01, 0.01)
+vueObj.SetPosition(0.0, 0.0, 0.0)
 
 # TODO: Now go ahead and set up everything else
 # TODO: Make sure to scale plant appropriately; initial tests show plant as ~100x bigger than they are supposed to be. Instead of scaling the plants, we could change the
@@ -137,6 +139,7 @@ vueObj.ResizeAxis(0.01, 0.01, 0.01)
 
 # make sure to remove the temporary OBJ file so we don't fill up the hard drive
 os.remove(tempObjFile.name)
+os.remove(tempMtlFile.name)
 
 
 
