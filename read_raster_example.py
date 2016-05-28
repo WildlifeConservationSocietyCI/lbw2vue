@@ -4,7 +4,9 @@ from osgeo.gdalconst import *
 from osgeo import gdal_array
 import os
 
-ROOT_DIR = r'C:\Users\Jesse Moy\Documents\Python practice\untitled\dem'
+# you can find the GDAL library here: http://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal
+
+ROOT_DIR = r'C:\Users\'
 raster_path = 'dem.tif'
 
 # open raster
