@@ -102,15 +102,13 @@ def writeObjByHandle(plant, model, qualifier, objfile, scale = 1.0, mtlfile=None
 				myKd = linearToSrgb(mtlFront.diffuseColor)
 				mtlfile.write('\tKd ' + str(myKd[0]) + ' '  + str(myKd[1]) + ' ' + str(myKd[2]) + '\n')
 				mtlfile.write('\tNi 1.3333\n') # ior
-				"""
 				if len(mtlFront.diffuseTexture):
-					mtlfile.write('\tmap_Kd ' + os.path.basename(mtlFront.diffuseTexture) + '\n')
+					mtlfile.write('\tmap_Kd ' + mtlFront.diffuseTexture + '\n')
 				if len(mtlFront.bumpTexture) > 0:
-					mtlfile.write('\tbump ' + os.path.basename(mtlFront.bumpTexture) + '\n')
+					mtlfile.write('\tbump ' + mtlFront.bumpTexture + '\n')
 				if len(material.alphaTexture) > 0:
-					atsplit = os.path.splitext(os.path.basename(material.alphaTexture))
+					atsplit = os.path.splitext(material.alphaTexture)
 					mtlfile.write('\tmap_d ' + atsplit[0] + '_a' + atsplit[1] + '\n')
-				"""
 				#if len(material.alphaTexture) > 0:
 				#	mtlfile.write('\tmap_Tf ' + os.path.basename(material.alphaTexture) + '\n')
 

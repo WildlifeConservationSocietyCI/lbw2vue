@@ -115,33 +115,37 @@ id, plant_list, plant_path, plant_name = get_species(plants_dir)
 # generate the plant master filename
 lbwPlantFilename = os.path.join(plant_path, os.path.basename(plant_path) + ".lbw.gz")
 
-# create a temporary obj file in a temp location
+# TODO: determine a proper scene scale
+scale = 0.01
+
+# create temporary obj and mtl files
 tempObjFile = tempfile.NamedTemporaryFile(suffix=".obj", delete=False)
 tempMtlFile = tempfile.NamedTemporaryFile(suffix=".mtl", delete=False)
-
 myPlant = laubwerk.load(lbwPlantFilename)
-lbwtoobj2.writeObjByHandle(myPlant, myPlant.defaultModel, "summer", tempObjFile, 0.01, tempMtlFile)
+lbwtoobj2.writeObjByHandle(myPlant, myPlant.defaultModel, "summer", tempObjFile, scale, tempMtlFile)
 
 # we need to close the files so Vue can import it
 tempObjFile.close()
 tempMtlFile.close()
 
 # use Vue's built in import functionality to get the geometry imported
-vueObj = ImportObject(tempObjFile.name, -1, False, -1)  
+vueObj = ImportObject(tempObjFile.name, -1, False, -1)
+
+#center = (bbox.GetMax() + bbox.GetMin()) * 0.5
+#print center
 
 # name plant based on folder name
 vueObj.SetName(plant_name)
-vueObj.SetPosition(0.0, 0.0, 0.0)
 
-# TODO: Now go ahead and set up everything else
-# TODO: Make sure to scale plant appropriately; initial tests show plant as ~100x bigger than they are supposed to be. Instead of scaling the plants, we could change the
-# terrain size, but I'm hesitant to do so without seriously considering the implications for scaling the DEMs, etc.
+# In Vue, the default Pivot is apparently always centered. We counteract that by subtracting the position.
+vueObj.SetPivotPosition(-vueObj.Position()[0], -vueObj.Position()[1], -vueObj.Position()[2])
 
 # make sure to remove the temporary OBJ file so we don't fill up the hard drive
 os.remove(tempObjFile.name)
 os.remove(tempMtlFile.name)
 
-
+# TODO: store the file as a .vob
+#result = ExportObject(EONString strFilename, boolean bUseParameterizer = true, EONString dstColorPath = "", EONString dstBumpPath = "", EONString dstAlphaPath = "", EONString srcPreviewPicture = "")
 
 
 #
