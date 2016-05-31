@@ -14,7 +14,12 @@ sys.path.append('C:\Program Files\Laubwerk\Python')
 import laubwerk
 
 # import the lbwtoobj helper script
-sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+# earlier versions of Vue apparently do not define __file__ properly, but also they don't need the
+# current path to be appended, we just check for that case using try.
+try:
+    sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+except:
+    pass
 import lbwtoobj2
 
 
