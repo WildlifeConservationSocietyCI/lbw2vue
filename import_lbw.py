@@ -127,7 +127,7 @@ scale = 0.01
 tempObjFile = tempfile.NamedTemporaryFile(suffix=".obj", delete=False)
 tempMtlFile = tempfile.NamedTemporaryFile(suffix=".mtl", delete=False)
 myPlant = laubwerk.load(lbwPlantFilename)
-lbwtoobj2.writeObjByHandle(myPlant, myPlant.defaultModel, "summer", tempObjFile, scale, tempMtlFile)
+lbwtoobj2.writeObjByHandle(myPlant, myPlant.defaultModel, "summer", tempObjFile, scale, tempMtlFile, True)
 
 # we need to close the files so Vue can import it
 tempObjFile.close()
