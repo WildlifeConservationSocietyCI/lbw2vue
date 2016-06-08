@@ -24,7 +24,7 @@ def linearToSrgb(color):
 
 	return retCol
 
-def writeObjByHandle(plant, model, qualifier, objfile, scale = 1.0, mtlfile=None):
+def writeObjByHandle(plant, model, qualifier, objfile, scale = 1.0, mtlfile = None, mtlTexFullPath = False):
 	# generate the actual model geometry with default quality settings and the default (season) qualifier
 	# a list of valid qualifiers can be retrieved through plant.qualifiers
 	mesh = model.getMesh(qualifier)
@@ -103,17 +103,17 @@ def writeObjByHandle(plant, model, qualifier, objfile, scale = 1.0, mtlfile=None
 				mtlfile.write('\tKd ' + str(myKd[0]) + ' '  + str(myKd[1]) + ' ' + str(myKd[2]) + '\n')
 				mtlfile.write('\tNi 1.3333\n') # ior
 				if len(mtlFront.diffuseTexture):
-					mtlfile.write('\tmap_Kd ' + mtlFront.diffuseTexture + '\n')
+					mtlfile.write('\tmap_Kd ' + (mtlFront.diffuseTexture if mtlTexFullPath else os.path.basename(mtlFront.diffuseTexture))+ '\n')
 				if len(mtlFront.bumpTexture) > 0:
-					mtlfile.write('\tbump ' + mtlFront.bumpTexture + '\n')
+					mtlfile.write('\tbump ' + (mtlFront.bumpTexture if mtlTexFullPath else os.path.basename(mtlFront.bumpTexture)) + '\n')
 				if len(material.alphaTexture) > 0:
-					atsplit = os.path.splitext(material.alphaTexture)
+					atsplit = os.path.splitext(material.alphaTexture if mtlTexFullPath else os.path.basename(material.alphaTexture))
 					mtlfile.write('\tmap_d ' + atsplit[0] + '_a' + atsplit[1] + '\n')
 				#if len(material.alphaTexture) > 0:
 				#	mtlfile.write('\tmap_Tf ' + os.path.basename(material.alphaTexture) + '\n')
 
 
-def writeObjByName(plant, model, qualifier, objFileName, scale=1.0, mtlFileName=None):
+def writeObjByName(plant, model, qualifier, objFileName, scale = 1.0, mtlFileName = None, mtlTexFullPath = False):
 
 	objfile = open(objFileName, "w")
 
@@ -121,8 +121,7 @@ def writeObjByName(plant, model, qualifier, objFileName, scale=1.0, mtlFileName=
 	if mtlFileName:
 		mtlfile = open(mtlFileName, "w")
 
-	writeObjByHandle(plant, model, qualifier, objfile, scale, mtlfile)
-
+	writeObjByHandle(plant, model, qualifier, objfile, scale, mtlfile, mtlTexFullPath)
 
 
 def main():
