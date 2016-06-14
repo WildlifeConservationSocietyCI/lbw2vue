@@ -29,6 +29,9 @@ vueScriptsFolder = os.path.abspath(os.path.join(vuePythonFolder,"Scripts"))
 wxPythonFolder = os.path.abspath(os.path.join(vuePythonFolder,"PythonLib/site-packages/wx"))
 try:
     sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+except:
+    pass
+try:
     import wx
     from wx.lib.splitter import MultiSplitterWindow
 except:
