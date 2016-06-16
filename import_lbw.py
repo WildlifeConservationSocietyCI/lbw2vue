@@ -88,20 +88,6 @@ class SelectPlantVariant(wx.Dialog):
         params = {"variant": var, "age": age, "season": season}
         return params
 
-
-def getLabel(labels, fallback, lang="en"):
-    """ Read the most fitting label from a labels dictionary
-
-    Takes a label dictionary, a fallback string (in case nothing is found or labels is empty) and
-    the requested language as input.
-    """
-    try:
-        label = labels[lang][0]
-        return label
-    except:
-        return fallback
-
-
 def doImport():
 
     # shows open file modal
@@ -123,13 +109,13 @@ def doImport():
 
     myVariants = []
     for model in myPlant.models:
-        myVariants.append(getLabel(model.labels, model.name))
+        myVariants.append(laubwerk.getLabel(model.labels, "en-US", defaultLabel=model.name))
 
     mySeasons = []
     for qualifier in myPlant.defaultModel.qualifiers:
-        mySeasons.append(getLabel(myPlant.defaultModel.qualifierLabels[qualifier], qualifier))
+        mySeasons.append(laubwerk.getLabel(myPlant.defaultModel.qualifierLabels[qualifier], "en-US", defaultLabel=qualifier))
 
-    myParams = {"filepath": None, "variant": getLabel(myPlant.defaultModel.labels, myPlant.defaultModel.name), "season": getLabel(myPlant.defaultModel.qualifierLabels[myPlant.defaultModel.defaultQualifier], myPlant.defaultModel.defaultQualifier)}
+    myParams = {"filepath": None, "variant": laubwerk.getLabel(myPlant.defaultModel.labels, "en-US", defaultLabel=myPlant.defaultModel.name), "season": laubwerk.getLabel(myPlant.defaultModel.qualifierLabels[myPlant.defaultModel.defaultQualifier], "en-US", defaultLabel=myPlant.defaultModel.defaultQualifier)}
 
     # bring up a plant detail dialog
     dlg = SelectPlantVariant(None, -1, 'Laubwerk Plant Selector', variants = myVariants, seasons = mySeasons, params = myParams)
