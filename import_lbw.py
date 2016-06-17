@@ -20,7 +20,7 @@ try:
     sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 except:
     pass
-import lbwtoobj2
+import lbwtoobjvue
 
 # imports wx from native Vue install location
 vueRootPath = GetVueRootPath()
@@ -63,14 +63,17 @@ class SelectPlantVariant(wx.Dialog):
         self.st = wx.StaticText(self, label="Choose plant parameters", pos=(10, 10))
         self.st = wx.StaticText(self, label="Model", pos=(10,50))
         varSelector = wx.ComboBox(self, -1, pos=(150, 50), size=(150, -1), value=self.variants[self.params["variant"]], choices=self.variants, style=wx.CB_READONLY, name="Model")
-        self.st = wx.StaticText(self, label="Season", pos=(10, 150))
-        seasSelector = wx.ComboBox(self, -1, pos=(150, 150), size=(150, -1), value=self.seasons[self.params["season"]], choices=self.seasons, style=wx.CB_READONLY, name="Season")
+        self.st = wx.StaticText(self, label="Season", pos=(10, 75))
+        seasSelector = wx.ComboBox(self, -1, pos=(150, 75), size=(150, -1), value=self.seasons[self.params["season"]], choices=self.seasons, style=wx.CB_READONLY, name="Season")
+        self.st = wx.StaticText(self, label="Leaf Density", pos=(10, 100))
+        leafDensityCtrl = wx.SpinCtrlDouble(self, wx.ID_ANY, pos=(150, 100), size=wx.DefaultSize, style=wx.SP_VERTICAL|wx.SP_ARROW_KEYS, value="1.0", min=0.0, max=1.0, initial=1.0, inc=0.1, name="LeafDensity")
 
         wx.Button(self, wx.ID_OK, "", (50, 420))
         wx.Button(self, wx.ID_CANCEL, "", (250,420))
 
         varSelector.Bind(wx.EVT_COMBOBOX, self.varSelect)
         seasSelector.Bind(wx.EVT_COMBOBOX, self.seasonSelect)
+        leafDensityCtrl.Bind(wx.EVT_SPINCTRLDOUBLE, self.leafDensitySelect)
 
         self.Bind(wx.EVT_BUTTON, self.OnClose, id=1)
         self.Centre()
@@ -84,9 +87,9 @@ class SelectPlantVariant(wx.Dialog):
     def seasonSelect(self, event):
         self.params["season"] = event.GetSelection()
 
-    def returnSelections(self, var, age, season):
-        params = {"variant": var, "age": age, "season": season}
-        return params
+    def leafDensitySelect(self, event):
+        self.params["leafDensity"] = event.GetValue()
+
 
 def doImport():
 
@@ -107,7 +110,7 @@ def doImport():
     myPlant = laubwerk.load(lbwPlantFilename)
 
     # prepare list of options and default settings for the parameter dialog
-    myParams = {}
+    myParams = { "leafDensity" : 1.0 }
     myVariants = []
     for idx, model in enumerate(myPlant.models):
         myVariants.append(laubwerk.getLabel(model.labels, "en-US", defaultLabel=model.name))
@@ -124,7 +127,7 @@ def doImport():
     dlg = SelectPlantVariant(None, -1, 'Laubwerk Plant Selector', variants = myVariants, seasons = mySeasons, params = myParams)
     dialogResult = dlg.ShowModal()
     dlg.Destroy()
-    if not dialogResult == wx.ID_OK:    
+    if not dialogResult == wx.ID_OK:
         return
 
     # TODO: determine a proper scene scale
@@ -133,7 +136,7 @@ def doImport():
     # create temporary obj and mtl files
     tempObjFile = tempfile.NamedTemporaryFile(suffix=".obj", delete=False)
     tempMtlFile = tempfile.NamedTemporaryFile(suffix=".mtl", delete=False)
-    lbwtoobj2.writeObjByHandle(myPlant, myPlant.models[myParams["variant"]], myPlant.models[myParams["variant"]].qualifiers[myParams["season"]], tempObjFile, scale, tempMtlFile, True)
+    lbwtoobjvue.writeObjByHandle(myPlant, myPlant.models[myParams["variant"]], myPlant.models[myParams["variant"]].qualifiers[myParams["season"]], tempObjFile, scale, tempMtlFile, True, myParams["leafDensity"])
 
     # we need to close the files so Vue can import it
     tempObjFile.close()

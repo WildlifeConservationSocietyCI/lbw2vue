@@ -24,10 +24,10 @@ def linearToSrgb(color):
 
 	return retCol
 
-def writeObjByHandle(plant, model, qualifier, objfile, scale = 1.0, mtlfile = None, mtlTexFullPath = False):
+def writeObjByHandle(plant, model, qualifier, objfile, scale = 1.0, mtlfile = None, mtlTexFullPath = False, leafDensity = 1.0):
 	# generate the actual model geometry with default quality settings and the default (season) qualifier
 	# a list of valid qualifiers can be retrieved through plant.qualifiers
-	mesh = model.getMesh(qualifier)
+	mesh = model.getMesh(qualifier, leafDensity=leafDensity)
 
 	objfile.write("# obj file written by laubwerk python example\n")
 
