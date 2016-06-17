@@ -62,9 +62,9 @@ class SelectPlantVariant(wx.Dialog):
         # defines each of the drop down menus, and their labels
         self.st = wx.StaticText(self, label="Choose plant parameters", pos=(10, 10))
         self.st = wx.StaticText(self, label="Model", pos=(10,50))
-        varSelector = wx.ComboBox(self, -1, pos=(150, 50), size=(150, -1), value=self.params["variant"], choices=self.variants, style=wx.CB_READONLY, name="Model")
+        varSelector = wx.ComboBox(self, -1, pos=(150, 50), size=(150, -1), value=self.variants[self.params["variant"]], choices=self.variants, style=wx.CB_READONLY, name="Model")
         self.st = wx.StaticText(self, label="Season", pos=(10, 150))
-        seasSelector = wx.ComboBox(self, -1, pos=(150, 150), size=(150, -1), value=self.params["season"], choices=self.seasons, style=wx.CB_READONLY, name="Season")
+        seasSelector = wx.ComboBox(self, -1, pos=(150, 150), size=(150, -1), value=self.seasons[self.params["season"]], choices=self.seasons, style=wx.CB_READONLY, name="Season")
 
         wx.Button(self, wx.ID_OK, "", (50, 420))
         wx.Button(self, wx.ID_CANCEL, "", (250,420))
@@ -82,7 +82,7 @@ class SelectPlantVariant(wx.Dialog):
         self.params["variant"] = event.GetSelection()
 
     def seasonSelect(self, event):
-        self.params["season"] = self.seasons[event.GetSelection()]
+        self.params["season"] = event.GetSelection()
 
     def returnSelections(self, var, age, season):
         params = {"variant": var, "age": age, "season": season}
@@ -103,31 +103,29 @@ def doImport():
     if result == wx.ID_CANCEL:
         return
 
-    # load the plant
-    # we need to do this early, so we can present options to the user
+    # load the plant (we need to do this early, so we can present options to the user)
     myPlant = laubwerk.load(lbwPlantFilename)
 
+    # prepare list of options and default settings for the parameter dialog
+    myParams = {}
     myVariants = []
-    for model in myPlant.models:
+    for idx, model in enumerate(myPlant.models):
         myVariants.append(laubwerk.getLabel(model.labels, "en-US", defaultLabel=model.name))
+        if model == myPlant.defaultModel:
+            myParams["variant"] = idx
 
     mySeasons = []
-    for qualifier in myPlant.defaultModel.qualifiers:
+    for idx, qualifier in enumerate(myPlant.defaultModel.qualifiers):
         mySeasons.append(laubwerk.getLabel(myPlant.defaultModel.qualifierLabels[qualifier], "en-US", defaultLabel=qualifier))
+        if qualifier == myPlant.defaultModel.defaultQualifier:
+            myParams["season"] = idx
 
-    myParams = {"filepath": None, "variant": laubwerk.getLabel(myPlant.defaultModel.labels, "en-US", defaultLabel=myPlant.defaultModel.name), "season": laubwerk.getLabel(myPlant.defaultModel.qualifierLabels[myPlant.defaultModel.defaultQualifier], "en-US", defaultLabel=myPlant.defaultModel.defaultQualifier)}
-
-    # bring up a plant detail dialog
+    # bring up a plant parameters dialog
     dlg = SelectPlantVariant(None, -1, 'Laubwerk Plant Selector', variants = myVariants, seasons = mySeasons, params = myParams)
-
-
-    if not dlg.ShowModal() == wx.ID_OK:
-        dlg.Destroy()
-        return
-
-    print dlg.params
+    dialogResult = dlg.ShowModal()
     dlg.Destroy()
-
+    if not dialogResult == wx.ID_OK:    
+        return
 
     # TODO: determine a proper scene scale
     scale = 0.01
@@ -135,7 +133,7 @@ def doImport():
     # create temporary obj and mtl files
     tempObjFile = tempfile.NamedTemporaryFile(suffix=".obj", delete=False)
     tempMtlFile = tempfile.NamedTemporaryFile(suffix=".mtl", delete=False)
-    lbwtoobj2.writeObjByHandle(myPlant, myPlant.defaultModel, "summer", tempObjFile, scale, tempMtlFile, True)
+    lbwtoobj2.writeObjByHandle(myPlant, myPlant.models[myParams["variant"]], myPlant.models[myParams["variant"]].qualifiers[myParams["season"]], tempObjFile, scale, tempMtlFile, True)
 
     # we need to close the files so Vue can import it
     tempObjFile.close()
